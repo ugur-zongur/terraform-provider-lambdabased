@@ -10,18 +10,30 @@ provider "lambdabased" {
   region = "us-east-1"
 }
 
+locals {
+  credentials = {
+    creds = "temporary-creds" # For instance, this can a token acquired with aws_eks_cluster_auth
+  }
+
+  parameters = {
+    param = "parameter-value"
+  }
+
+  destroy_parameters = {
+    param = "parameter-destroy-value"
+  }
+}
+
 resource "lambdabased_resource" "test" {
     function_name = "test-function"
-    triggers = { trig_a = "dummy-trigger" }
-    input = jsonencode({
-        param = "parameter-value"
-    })
+    triggers = {
+      param = sha512(jsonencode(local.parameters)) # drop sha512 if you want to store this in cleartext in the tf state
+    }
+    input = jsonencode(merge(local.credentials, local.parameters))
     conceal_input = true
     conceal_result = true
     finalizer {
-        function_name = "test-function"
-        input = jsonencode({
-            param = "parameter-destroy-value"
-        })
+        function_name = "test-function" # or another function if needed
+        input = jsonencode(merge(local.credentials, local.destroy_parameters))
     }
 }

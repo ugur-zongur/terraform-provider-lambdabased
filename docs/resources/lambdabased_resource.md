@@ -15,12 +15,12 @@ _Concealing_, here, means preventing the `input` and/or the `result` parameter(s
 `lambdabased_resource` resembles `aws_lambda_invocation` [resource](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_invocation) and [data source](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/lambda_invocation) as all three invokes lambda functions one way or another. Therefore it would be beneficial to point out why `lambdabased_resource` exists and what it solves explicitly. The advantages here are mostly applicable if your use-case is managing some resources using lambda functions. Otherwise `aws_lambda_invocation` might be perfectly suitable for your needs.
 
 ### `aws_lambda_invocation` resource
-- `aws_lambda_invocation` gets recreated when any of its parameters is changed. This results in *destroy*s in plans which generally requires more attention from both human or machine reviewers. On the other hand `aws_lambda_invocation` updates the resource therefore the underlying semantics are more faithfully represented.
-- `aws_lambda_invocation` is triggered when any part of `input` is changed. If you have some part of input that shouldn't trigger an update (e.g. a temporary access token) then this results in chatty plans. `aws_lambda_invocation` enables you to decouple triggering from input via `triggers` and `conceal_input` parameters.
+- `aws_lambda_invocation` gets recreated when any of its parameters is changed. This results in *destroy*s in plans which generally requires more attention from both human or machine reviewers. On the other hand `lambdabased_resource` updates the resource therefore the underlying semantics are faithfully represented.
+- `aws_lambda_invocation` is triggered when any part of `input` is changed. If you have some part of input that shouldn't trigger an update (e.g. a temporary access token) then this results in chatty plans. `lambdabased_resource` enables you to decouple triggering from input via `triggers` and `conceal_input` parameters.
 - `aws_lambda_invocation` writes its input to the terraform state file as clear text therefore even though it is stored with server-side-encryption people who have access to it can see the input. If your threat model is not compatible with that, i.e. entities that have read access to the state file shouldn't see the input to the lambda, you can conceal the input and result using the `lambdabased_resource`.
 
 ### `aws_lambda_invocation` data source
-- Being a data source, `aws_lambda_invocation` runs also on plans. Therefore if your lambda has side effects, they are reflected during the _plan_ phase rather than the _apply_ phase.
+- Being a data source, `aws_lambda_invocation` runs also on plans. Therefore if your lambda invocation has side effects, they are reflected during the _plan_ phase rather than the _apply_ phase.
 
 ## Example Usage
 
