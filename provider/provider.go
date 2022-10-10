@@ -22,7 +22,7 @@ func createProvider(configureContextFunc schema.ConfigureContextFunc) *schema.Pr
 			"profile": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "default",
+				Default:  "",
 			},
 			"region": {
 				Type:     schema.TypeString,
